@@ -14,6 +14,10 @@ footage from a golf-cart front camera.
 *(Red boxes = detections, with monocular distance. Red dashed lines + arrows = predicted object
 trajectories. Full clip: [`assets/demo.mp4`](assets/demo.mp4).)*
 
+![demo2](assets/demo2.gif)
+
+*(A second segment — pedestrians crossing — full clip: [`assets/demo2.mp4`](assets/demo2.mp4).)*
+
 ## Features
 
 - **Detection** — Ultralytics YOLO11 (`yolo11n` by default; auto-downloaded on first run).
@@ -66,6 +70,21 @@ python combined_view.py --video clip.mp4 --out combined.mp4 --headless
 ```
 
 ## How it works
+
+```mermaid
+flowchart LR
+    A[Video / webcam frame] --> B[YOLO11 detection]
+    B --> C[Associate to tracks<br/>nearest-centroid / IoU]
+    C --> D[Update per-track<br/>motion history]
+    D --> E{Enough motion?<br/>MIN_FIT_PTS, MIN_MOTION_PX}
+    E -- yes --> F[Fit + extrapolate<br/>PRED_FRAMES ahead]
+    E -- no --> G[skip prediction]
+    B --> H[Monocular distance<br/>box size + FOV]
+    F --> I[Annotate: boxes, IDs,<br/>distance, predicted path]
+    G --> I
+    H --> I
+    I --> J[Live window / mp4]
+```
 
 1. **Detect** objects per frame with YOLO11.
 2. **Associate** detections to existing tracks (nearest-centroid / IoU), updating each track's
