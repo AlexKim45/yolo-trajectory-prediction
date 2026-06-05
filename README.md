@@ -103,6 +103,25 @@ flowchart LR
 Files: `batting_cage_detect.py` (main app), `depth_bev.py` (detection wrapper + geometry helpers),
 `combined_view.py` (camera + BEV variant).
 
+## Limitations
+
+- **Monocular distance is a heuristic** from bounding-box size + camera FOV — a rough estimate, not
+  metric-accurate. A large distant object (e.g. a truck) can read as closer than it is.
+- **Trajectory prediction extrapolates recent motion**, so it mispredicts and overshoots when an
+  object suddenly changes direction or stops — that abrupt-change case is the main failure mode.
+- **The lightweight tracker can swap IDs** when objects cross paths or are briefly occluded, which
+  momentarily resets that track's motion history and its predicted path.
+- **Single camera, no true metric depth:** the core prediction is image-space, and the BEV is an
+  *approximate* top-down built on the coarse distance estimate. That's fine as a warning/awareness
+  overlay, but not yet reliable enough for closed-loop steering.
+
+Validated qualitatively on real campus driving footage and a pedestrian-crossing clip (see demos above).
+
+## AI Usage
+
+AI tools (Claude / Claude Code) were used during development for code scaffolding, debugging, and
+drafting documentation. All design decisions and final code were reviewed and integrated by me.
+
 ## Credits & license
 
 **Detection backbone:** [Ultralytics YOLO11](https://github.com/ultralytics/ultralytics) provides the
