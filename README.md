@@ -18,6 +18,13 @@ trajectories. Full clip: [`assets/demo.mp4`](assets/demo.mp4).)*
 
 *(A second segment — pedestrians crossing — full clip: [`assets/demo2.mp4`](assets/demo2.mp4).)*
 
+## Scope
+
+This is a standalone **perception prototype** built toward a self-driving golf cart's
+**object-avoidance** goal. The cart currently runs an end-to-end **segmentation** model for driving;
+this detection + trajectory-prediction module is **not yet integrated** into that stack — it's a
+forward-looking building block for predicting where nearby objects (pedestrians, vehicles) are headed.
+
 ## Features
 
 - **Detection** — Ultralytics YOLO11 (`yolo11n` by default; auto-downloaded on first run).
@@ -96,7 +103,16 @@ flowchart LR
 Files: `batting_cage_detect.py` (main app), `depth_bev.py` (detection wrapper + geometry helpers),
 `combined_view.py` (camera + BEV variant).
 
-## License / credits
+## Credits & license
 
-Built on [Ultralytics YOLO](https://github.com/ultralytics/ultralytics), which is licensed under
-**AGPL-3.0** — keep that in mind for any redistribution or deployment.
+**Detection backbone:** [Ultralytics YOLO11](https://github.com/ultralytics/ultralytics) provides the
+object detector. It is licensed under **AGPL-3.0**, so any redistribution or deployment of this project
+must comply with AGPL-3.0.
+
+**Original work in this repo** — everything built on top of the YOLO detections is mine:
+
+- **Multi-object tracker** — centroid / IoU association with stable track IDs and per-track motion history
+- **Trajectory prediction** — fitting each track's recent motion and extrapolating its future path forward
+- **Confidence gating** — `MIN_FIT_PTS` / `MIN_MOTION_PX` thresholds so noisy or just-spawned tracks don't emit wild predictions
+- **Monocular distance** — per-object range from bounding-box geometry + camera FOV
+- **BEV view** — the bird's-eye-view rendering of tracked objects and their predicted paths (`combined_view.py`)
